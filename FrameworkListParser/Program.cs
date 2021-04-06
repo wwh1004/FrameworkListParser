@@ -8,6 +8,15 @@ using System.Xml.Serialization;
 namespace FrameworkListParser {
 	class Program {
 		static void Main(string[] args) {
+			var fullNames = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+			foreach (string frameworkListPath in Directory.EnumerateFiles(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\", "FrameworkList.xml", SearchOption.AllDirectories)) {
+				foreach (string fullName in GetAssemblyFullNames(frameworkListPath))
+					fullNames.Add(fullName);
+			}
+			Console.WriteLine("All .NET Framework Versions");
+			Console.WriteLine(string.Join(Environment.NewLine, fullNames.Select(t => $"\"{t}\",")));
+			Console.WriteLine();
+
 			Console.WriteLine(".NET Framework v3.0");
 			Console.WriteLine(string.Join(Environment.NewLine, GetAssemblyFullNames(@"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.0\RedistList\FrameworkList.xml").Select(t => $"\"{t}\",")));
 			Console.WriteLine();
@@ -35,14 +44,19 @@ namespace FrameworkListParser {
 	public class File {
 		[XmlAttribute(AttributeName = "AssemblyName")]
 		public string AssemblyName { get; set; }
+
 		[XmlAttribute(AttributeName = "Version")]
 		public string Version { get; set; }
+
 		[XmlAttribute(AttributeName = "PublicKeyToken")]
 		public string PublicKeyToken { get; set; }
+
 		[XmlAttribute(AttributeName = "Culture")]
 		public string Culture { get; set; }
+
 		[XmlAttribute(AttributeName = "ProcessorArchitecture")]
 		public string ProcessorArchitecture { get; set; }
+
 		[XmlAttribute(AttributeName = "InGAC")]
 		public string InGAC { get; set; }
 
@@ -53,6 +67,7 @@ namespace FrameworkListParser {
 	public class FileList {
 		[XmlElement(ElementName = "File")]
 		public List<File> File { get; set; }
+
 		[XmlAttribute(AttributeName = "Redist")]
 		public string Redist { get; set; }
 	}
